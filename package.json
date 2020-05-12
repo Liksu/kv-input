@@ -1,0 +1,24 @@
+{
+  "name": "kv-input",
+  "version": "1.0.0",
+  "description": "Simple key-value editor web-component",
+  "main": "kv-input.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liksu/kv-input.git"
+  },
+  "keywords": [
+    "web-component",
+    "editor",
+    "key-value"
+  ],
+  "author": "Petro Borshchahivskyi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Liksu/kv-input/issues"
+  },
+  "homepage": "https://github.com/Liksu/kv-input#readme"
+}
