@@ -187,7 +187,7 @@ class KVInput extends HTMLElement {
         } else {
             input.type = 'checkbox';
             input.checked = value;
-            const unwrap = (event) => {
+            const unwrap = () => {
                 input.type = 'text';
                 input.value = String(input.checked);
                 input.removeEventListener('dblclick', unwrap);
