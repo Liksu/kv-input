@@ -78,7 +78,7 @@ class KVInput extends HTMLElement {
     restoreValueType(value) {
         if (value === 'true') return true;
         if (value === 'false') return false;
-        if (!isNaN(parseFloat(value))) return parseFloat(value);
+        if (!isNaN(parseFloat(value))) return parseFloat(value); //possible incorrect for strings with number in the beginning
         return value;
     }
 
@@ -92,6 +92,7 @@ class KVInput extends HTMLElement {
         const entries = Array.from(this._model)
             .slice(0, -1)
             .map(pair => [pair.key.content, pair.value.content]);
+        //TODO: restore types if _useTypes
         return Object.fromEntries(entries);
     }
 
