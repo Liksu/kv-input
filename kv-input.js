@@ -162,7 +162,7 @@ class KVInput extends HTMLElement {
 
     validateKeys() {
         const uniqueKeys = {};
-        Array.from(kvInput._model).slice(0, -1).forEach(({key}) => {
+        Array.from(this._model).slice(0, -1).forEach(({key}) => {
             if (uniqueKeys[key.content]) {
                 uniqueKeys[key.content].classList.add('invalid');
                 key.input.classList.add('invalid');
