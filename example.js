@@ -2,6 +2,7 @@ import './kv-input.js';
 
 // get KVInput instance
 const kvInput = document.querySelector('kv-input');
+window.kvInput = kvInput; // for debug and investigate
 
 // collect elements from page
 

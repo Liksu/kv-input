@@ -116,8 +116,8 @@ class KVInput extends HTMLElement {
             isFirst = pairIndex === first;
             isLast = pairIndex === last;
             const index = order.findIndex(index => index === pairIndex);
-            if (!isFirst) prev = this._model[index - 1];
-            if (!isLast) next = this._model[index + 1];
+            if (!isFirst) prev = this._model[order[index - 1]];
+            if (!isLast) next = this._model[order[index + 1]];
         }
 
         return {
