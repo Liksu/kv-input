@@ -6,6 +6,7 @@ const template = `
         }
         
         input {
+            font-size: inherit;
             display: inline-block;
             border: 1px solid silver;
         }
@@ -100,7 +101,6 @@ class KVInput extends HTMLElement {
         this.initRender();
         Object.entries(obj).forEach(pair => this.createPair(...pair));
         this.createPair('', '', 'last'); // add new pair line
-        console.log('reset to', Object.assign({}, this._model));
     }
 
     getOrder(pairIndex = null) {
@@ -203,7 +203,6 @@ class KVInput extends HTMLElement {
     }
 
     createPair(key, value, isLast = false, index = this._index++) {
-        console.log('createPair', {key, value, isLast, index});
         const link = this._model[index] = { index, isLast };
 
         Object.assign(link, {
@@ -234,7 +233,6 @@ class KVInput extends HTMLElement {
         const inputValue = input.type === 'checkbox' ? input.checked : input.value;
         if (inputLink.content === inputValue) return;
 
-        console.log(`update on ${event.type} event, model[${pairIndex}].${input.name} =`, inputValue || null);
         inputLink.content = inputValue;
 
         if (!pairLink.key.content && !pairLink.value.content) {
@@ -256,7 +254,6 @@ class KVInput extends HTMLElement {
     }
 
     removePair(pairIndex) {
-        console.log('remove', pairIndex);
         const link = this._model[pairIndex];
         if (!link) return;
         if (link.isLast) return;
@@ -267,8 +264,6 @@ class KVInput extends HTMLElement {
 
         const last = this._model[this._lastIndex];
         if (last) last.key.input.focus();
-
-        console.log('model after remove', Object.assign({}, this._model));
     }
 
     initRender() {
@@ -308,7 +303,6 @@ class KVInput extends HTMLElement {
     }
 
     attributeChangedCallback(attrName, oldVal, newVal) {
-        console.log('attributeChangedCallback', {attrName, oldVal, newVal});
         switch (attrName) {
             case 'debounce':
                 this._debounce = isNaN(parseInt(newVal)) ? 0 : parseInt(newVal);

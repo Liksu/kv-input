@@ -1,6 +1,6 @@
 {
   "name": "kv-input",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Simple key-value editor web-component",
   "main": "kv-input.js",
   "scripts": {
@@ -20,5 +20,5 @@
   "bugs": {
     "url": "https://github.com/Liksu/kv-input/issues"
   },
-  "homepage": "https://github.com/Liksu/kv-input#readme"
+  "homepage": "https://liksu.github.io/kv-input/"
 }

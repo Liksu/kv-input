@@ -10,26 +10,146 @@
         }
 
         @media (max-width: 986px) {
-            .column {width: 100%}
-            body {font-size: 3rem}
+            body {font-size: 2em}
+            button {font-size: 2rem}
         }
 
         pre {
             background-color: lightgray;
+            padding: 0.5em;
+        }
+
+        pre input {
+            border: 0;
+            line-height: 1rem;
+        }
+
+        hr {
+            margin: 1.5em 0;
+        }
+    </style>
+    <!-- github link styles -->
+    <style>
+        #forkongithub a {
+            background: #006;
+            color: #fff;
+            text-decoration: none;
+            font-family: arial, sans-serif;
+            text-align: center;
+            font-weight: bold;
+            padding: 5px 40px;
+            font-size: 2rem;
+            line-height: 3rem;
+            position: relative;
+            transition: 0.5s;
+        }
+
+        #forkongithub a:hover {
+            background: #11c;
+            color: #fff;
+        }
+
+        #forkongithub a::before, #forkongithub a::after {
+            content: "";
+            width: 100%;
+            display: block;
+            position: absolute;
+            top: 1px;
+            left: 0;
+            height: 1px;
+            background: #fff;
+        }
+
+        #forkongithub a::after {
+            bottom: 1px;
+            top: auto;
+        }
+
+        #forkongithub {
+            position: absolute;
+            display: block;
+            top: 0;
+            right: 0;
+            width: 170px;
+            overflow: hidden;
+            height: 170px;
+            z-index: 9999;
+        }
+
+        #forkongithub a {
+            width: 100px;
+            position: absolute;
+            top: 30px;
+            right: -45px;
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        @media screen and (min-width: 800px) {
+            #forkongithub {
+                top: 0;
+                right: 0;
+                width: 170px;
+                height: 170px;
+            }
+
+            #forkongithub a {
+                font-size: 0.7rem;
+                line-height: 1.2rem;
+                width: 100px;
+                top: 30px;
+                right: -45px;
+                box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+            }
         }
     </style>
 </head>
 <body>
-    Mirror:
-    <pre id="mirror"></pre>
+    <!-- github link code -->
+    <span id="forkongithub">
+        <a href="https://github.com/Liksu/kv-input">Code on GitHub</a>
+    </span>
 
-    <button onclick="toggleTypes()">Toggle use-types</button>
+    <!-- demo code -->
+
+    <h2>Demo usage:</h2>
+
+    <div class="column">
+        <kv-input>{"NotEmpty":"some text","Null":null,"BoolTrue":true,"BoolFalse":false,"Number":42}</kv-input>
+    </div>
 
     <hr>
 
-    <div class="column">
-        <kv-input title="Environment variables" key-title="Variable" value-title="Value">{"NotEmpty":"some text","Null":null,"BoolTrue":true,"BoolFalse":false,"Number":42}</kv-input>
-    </div>
+    <h3>Result object:</h3>
+    <pre id="mirror"></pre>
+
+    <h3>Customization:</h3>
+    <button onclick="toggleTypes()">Toggle use-types</button>
+    <br>
+    <label>Debounce
+        <input id="debounce" type="range" min="0" max="500" step="50" style="vertical-align: middle" onchange="updateDebounce(this)" value="0">
+        <span>0</span>
+        ms.
+    </label><br>
+    <label>Component title: <input alt="title" id="titleInput" placeholder="titleValue" value="Environment variables"></label><br>
+    <label>Key-column title: <input alt="key-title" id="keyTitleInput" placeholder="keyTitleValue" value="Variable"></label><br>
+    <label>Value-column title: <input alt="value-title" id="valueTitleInput" placeholder="valueTitleValue" value="Value"></label><br>
+
+    <br>
+    <h3>Example tag:</h3>
+    <pre id="tag">
+&lt;kv-input title="<span id="titleValue"></span>"
+          key-title="<span id="keyTitleValue"></span>"
+          value-title="<span id="valueTitleValue"></span>"
+          debounce="<span id="debounceValue">0</span>"
+          use-types="<span id="useTypesValue">true</span>">&lt;/kv-input></pre>
+
+    Do not forget to include web-component:
+    <pre>import 'kv-input.js';</pre>
 
     <script src="example.js" defer type="module"></script>
 </body>
