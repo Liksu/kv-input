@@ -288,12 +288,24 @@ class KVInput extends HTMLElement {
 
         if (title) {
             this._uiCache.title.innerHTML = title;
+            this.toggleElement(this._uiCache.title, true);
+        } else {
+            this.toggleElement(this._uiCache.title, false);
         }
 
         if (keyTitle || valueTitle) {
             this._uiCache.keyTitle.innerHTML = keyTitle;
             this._uiCache.valueTitle.innerHTML = valueTitle;
+            this.toggleElement(this._uiCache.keyTitle, true);
+            this.toggleElement(this._uiCache.valueTitle, true);
+        } else {
+            this.toggleElement(this._uiCache.keyTitle, false);
+            this.toggleElement(this._uiCache.valueTitle, false);
         }
+    }
+
+    toggleElement(element, show) {
+        element.style.display = show ? (element.tagName === 'SPAN' ? 'inline' : 'block') : 'none';
     }
 
     reset() {
