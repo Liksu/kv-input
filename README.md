@@ -28,7 +28,7 @@ import '/node_modules/kv-input/kv-input.js';
 And subscribe to changes:
 
 ```js
-kvInput = document.querySelector('kv-input');
+const kvInput = document.querySelector('kv-input');
 kvInput.onchange = (resultObject) => {
     console.log(resultObject);
 } 
