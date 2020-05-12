@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KV-input</title>
+    <style>
+        .column {width: 25%}
+        body {
+            font-size: 1rem;
+        }
+
+        @media (max-width: 986px) {
+            .column {width: 100%}
+            body {font-size: 3rem}
+        }
+
+        pre {
+            background-color: lightgray;
+        }
+    </style>
+</head>
+<body>
+    Mirror:
+    <pre id="mirror"></pre>
+
+    <button onclick="toggleTypes()">Toggle use-types</button>
+
+    <hr>
+
+    <div class="column">
+        <kv-input title="Environment variables" key-title="Variable" value-title="Value">{"NotEmpty":"some text","Null":null,"BoolTrue":true,"BoolFalse":false,"Number":42}</kv-input>
+    </div>
+
+    <script src="example.js" defer type="module"></script>
+</body>
+</html>
