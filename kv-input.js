@@ -180,26 +180,71 @@ class KVInput extends HTMLElement {
         this._timerId = setTimeout(() => this.update(event), this._debounce);
     }
 
-    createInput(index, name, value, pairLink) {
-        const input = document.createElement('input');
+    createElement(index, name, value, pairLink) {
+        let element;
 
-        if (typeof value !== 'boolean' || !this._useTypes) {
-            input.value = value;
+        if (this._useTypes && typeof value === 'boolean') {
+            element = this.createCheckbox(value);
+        } else if (this._useTypes && Array.isArray(value)) {
+            element = this.createSelect(value);
         } else {
-            input.type = 'checkbox';
-            input.checked = value;
-            const unwrap = () => {
-                input.type = 'text';
-                input.value = String(input.checked);
-                input.removeEventListener('dblclick', unwrap);
-            };
-            input.addEventListener('dblclick', unwrap);
+            element = this.createInput(value);
         }
 
-        input.setAttribute('name', name);
-        input.pairLink = pairLink;
-        input.dataset.index = index;
+        element.setAttribute('name', name);
+        element.pairLink = pairLink;
+        element.dataset.index = index;
 
+        return element;
+    }
+
+    createInput(value) {
+        const input = document.createElement('input');
+        input.value = value;
+        input.type = 'text';
+        return input;
+    }
+
+    createSelect(value) {
+        const select = document.createElement('select');
+
+        ['', ...value].forEach(item => {
+            const option = document.createElement('option');
+            option.value = option.innerText = item;
+            select.appendChild(option);
+        });
+        select.value = null;
+
+        const unwrapSelect = (event) => {
+            if (!event.ctrlKey) return;
+
+            const input = this.createInput(select.value);
+            input.name = select.name;
+            input.pairLink = select.pairLink;
+            input.dataset.index = select.dataset.index;
+
+            select.parentNode.insertBefore(input, select);
+            select.removeEventListener('click', unwrapSelect);
+            select.remove();
+        };
+        select.addEventListener('click', unwrapSelect);
+
+        return select;
+    }
+
+    createCheckbox(value) {
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = value;
+
+        const unwrapCheckbox = (event) => {
+            if (!event.ctrlKey) return;
+
+            input.type = 'text';
+            input.value = String(input.checked);
+            input.removeEventListener('click', unwrapCheckbox);
+        };
+        input.addEventListener('click', unwrapCheckbox);
         return input;
     }
 
@@ -209,11 +254,11 @@ class KVInput extends HTMLElement {
         Object.assign(link, {
             key: {
                 content: key,
-                input: this.createInput(index, 'key', key, link)
+                input: this.createElement(index, 'key', key, link)
             },
             value: {
                 content: value,
-                input: this.createInput(index, 'value', value, link)
+                input: this.createElement(index, 'value', value, link)
             }
         });
 
@@ -276,7 +321,7 @@ class KVInput extends HTMLElement {
             valueTitle: this.shadowRoot.getElementById('value-title')
         };
 
-        this.shadowRoot.addEventListener('change', e => this.debounceUpdate(e));
+        this.shadowRoot.addEventListener('change', e => this.update(e));
         this.shadowRoot.addEventListener('keyup', e => this.keyupHandler(e));
 
         this.updateUI();

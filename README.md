@@ -62,6 +62,12 @@ kvInput.kv = plainObject;
 plainObject = kvInput.kv;
 ```
 
+### HotKeys
+
+`Ctrl+Y` deletes the pair.
+
+`Ctrl+Click` on checkbox or dropdown transform them into text-input.
+
 ## Browsers compatibility
 
 Not right now, sorry.

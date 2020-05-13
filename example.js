@@ -26,7 +26,6 @@ window.toggleTypes = function() {
     kvInput.setAttribute('use-types', String(!kvInput._useTypes));
     elements.useTypesValue.innerText = String(kvInput._useTypes);
 };
-window.toggleTypes();
 
 // add listeners for titles change and init them
 
@@ -44,8 +43,22 @@ window.toggleTypes();
 // subscribe to changes from kv-input
 
 function updateDump(newData) {
-    elements.mirror.innerHTML = JSON.stringify(newData, null, 4);
+    elements.mirror.innerHTML = stringify(newData, 4);
     console.log('data changed to', newData);
 }
 kvInput.onchange = updateDump;
 updateDump(kvInput.kv);
+
+// my own stringify to make example more compact
+function stringify(obj, replacer = null, space = 4) {
+    const defaultReplacer = (k, v) => JSON.stringify(v);
+
+    if (!replacer || !(typeof replacer == 'function')) replacer = defaultReplacer;
+    if (typeof space == 'number') space = ' '.repeat(space);
+
+    const pairs = Object.entries(obj).map(([k, v]) => {
+        return `${space}"${k}": ` + replacer(k, v);
+    });
+
+    return `{\n${pairs.join('\n')}\n}`;
+}
