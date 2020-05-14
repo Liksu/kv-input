@@ -169,9 +169,11 @@ class KVInput extends HTMLElement {
             if (nextInput.type !== 'checkbox') nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
         } else if (event.key === 'D' && event.shiftKey && event.ctrlKey) {
             const {key: {content: key}, value: {content: value}} = input.pairLink || this._model[input.dataset.index];
-            // this.createPair(key, value, false, input.dataset.index + this._duplicateIndexStep);
-            //TODO: duplicate line, and focus new pair, reorder pairs
-            //TODO: invalidate duplicated keys
+            const newIndex = +input.dataset.index + this._duplicateIndexStep;
+            this.createPair(key, value, false, newIndex);
+            this.reSort();
+            this.validateKeys();
+            this._model[newIndex].key.input.focus();
         } else if (event.key === 'y' && event.ctrlKey) {
             this.removePair(input.dataset.index);
             if (isFirst && next) next[input.name].input.focus();
@@ -393,6 +395,15 @@ class KVInput extends HTMLElement {
             this.toggleElement(this._uiCache.keyTitle, false);
             this.toggleElement(this._uiCache.valueTitle, false);
         }
+    }
+
+    reSort() {
+        const {order} = this.getOrder();
+        order.forEach(pairIndex => {
+            const {key: {input: key}, value: {input: value}} = this._model[pairIndex];
+            this.shadowRoot.appendChild(key);
+            this.shadowRoot.appendChild(value);
+        });
     }
 
     toggleElement(element, show) {

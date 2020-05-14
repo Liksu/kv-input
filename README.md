@@ -86,6 +86,8 @@ the dropdown will be rendered as plain input, because there are no according met
 
 `Ctrl+Click` on checkbox or dropdown transform them into text-input.
 
+`Ctrl+Shift+D` duplicates the pair.
+
 ## Browsers compatibility
 
 Not right now, sorry.
