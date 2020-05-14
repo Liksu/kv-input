@@ -39,6 +39,11 @@ window.toggleTypes = function() {
     elements[input.placeholder].innerText = input.value;
 });
 
+// set meta
+
+kvInput.meta = {
+    test: 'a b c d'.split(' ')
+};
 
 // subscribe to changes from kv-input
 
