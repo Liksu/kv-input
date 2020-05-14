@@ -42,7 +42,7 @@ const template = `
     <span id="key-title"></span>
     <span id="value-title"></span>
 `;
-const empty = window.empty = {
+const empty = {
     valueOf: () => Symbol.for(null),
     toString: () => ''
 };
@@ -167,7 +167,7 @@ class KVInput extends HTMLElement {
             const nextInput = next[input.name].input;
             nextInput.focus();
             if (nextInput.type !== 'checkbox') nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
-        } else if (event.key === 'D' && event.shiftKey && event.ctrlKey) {
+        } else if (event.key === 'd' && event.altKey && event.ctrlKey) {
             const {key: {content: key}, value: {content: value}} = input.pairLink || this._model[input.dataset.index];
             const newIndex = +input.dataset.index + this._duplicateIndexStep;
             this.createPair(key, value, false, newIndex);
@@ -256,6 +256,7 @@ class KVInput extends HTMLElement {
             const input = this.createInput(select.value);
             this.setElementTail(input, 'value', select.pairLink, select.dataset.index);
 
+            select.pairLink.value.input = input;
             select.parentNode.insertBefore(input, select);
             select.removeEventListener('click', unwrapSelect);
             select.remove();
@@ -331,7 +332,7 @@ class KVInput extends HTMLElement {
             valueInput.remove();
         }
 
-        if (!pairLink.key.content && !pairLink.value.content) {
+        if (!pairLink.key.content && (!pairLink.value.content || pairLink.value.content == empty)) {
             this.removePair(pairIndex);
         } else if (pairLink.isLast) {
             pairLink.isLast = false;
