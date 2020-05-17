@@ -115,6 +115,8 @@ the dropdown will be rendered as plain input, because there are no according met
 
 `Ctrl+Alt+D` duplicates the pair.
 
+`ArrowUp` and `ArrowDown` to move cursor between rows.
+
 ## Styling
 
 You can pass styles inside to the component.
