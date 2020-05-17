@@ -19,12 +19,19 @@ const template = `
             margin: 5px;
         }
         
-        input:focus {
+        input:focus, select:focus {
             outline: none;
         }
         
-        input.invalid {
+        .invalid {
             color: red;
+        }
+        
+        select {
+            min-height: 2em;
+            margin-left: -1px;
+            margin-top: -1px;
+            padding: 4px;
         }
         
         h3 {
@@ -33,6 +40,10 @@ const template = `
         
         span {
             margin-bottom: 4px;
+        }
+        
+        .key-title {
+            padding-right: 4px;
         }
     </style>
     
@@ -61,10 +72,7 @@ class KVInput extends HTMLElement {
     _duplicateIndexStep = 0.00001;
     _meta = {};
     _template = template;
-
-    static get observedAttributes() {
-        return ['title', 'key-title', 'value-title', 'debounce', 'use-types', 'meta'];
-    }
+    _keys = null;
 
     constructor() {
         super();
@@ -110,6 +118,14 @@ class KVInput extends HTMLElement {
             if (slots.meta) {
                 try { this._meta = JSON.parse(slots.meta) } catch (e) {}
             }
+
+            if (slots.keys) {
+                try {
+                    this._keys = JSON.parse(slots.meta);
+                } catch (e) {
+                    this._keys = null;
+                }
+            }
         }
 
         return json;
@@ -124,14 +140,20 @@ class KVInput extends HTMLElement {
     }
 
     restoreTypes(obj) {
+        if (!obj || typeof obj !== 'object') return;
         Object.entries(obj).forEach(([key, value]) => {
             obj[key] = this.restoreValueType(value);
         });
     }
 
+    getModelArray() {
+        const modelArray = Array.from(this._model);
+        if (this._model[this._lastIndex].isLast) modelArray.splice(-1);
+        return modelArray;
+    }
+
     get kv() {
-        const entries = Array.from(this._model)
-            .slice(0, -1)
+        const entries = this.getModelArray()
             .map(pair => [
                 pair.key.content,
                 this._useTypes
@@ -143,11 +165,13 @@ class KVInput extends HTMLElement {
     }
 
     set kv(obj) {
+        if (typeof obj !== 'object') return;
         this.restoreTypes(obj);
         if (this._index) this.clearModel();
         this.initRender();
-        Object.entries(obj).forEach(pair => this.createPair(...pair));
+        Object.entries(obj || {}).forEach(pair => this.createPair(...pair));
         this.createPair('', '', 'last'); // add new pair line
+        this.update();
     }
 
     get meta() {
@@ -157,6 +181,24 @@ class KVInput extends HTMLElement {
     set meta(metaData) {
         if (!metaData) this._meta = {};
         else if (typeof metaData === 'object') Object.assign(this._meta, metaData);
+
+        this.reset();
+    }
+
+    get keys() {
+        return this._keys;
+    }
+
+    set keys(keysList) {
+        if (Array.isArray(keysList)) this._keys = keysList;
+        else if (typeof keysList === 'string') {
+            try {
+                this._keys = JSON.parse(keysList)
+            } catch (e) {
+                this._keys = keysList.split(/\s*,\s*/);
+            }
+        }
+        else this._keys = null;
 
         this.reset();
     }
@@ -191,16 +233,21 @@ class KVInput extends HTMLElement {
 
     keyupHandler(event) {
         const input = event.path[0];
+        const inputName = input.dataset.name;
         const {isFirst, isLast, prev, next} = this.getOrder(input.dataset.index);
 
         if (event.key === 'ArrowUp' && !isFirst && prev) {
-            const prevInput = prev[input.name].input;
+            const prevInput = prev[inputName].input;
             prevInput.focus();
-            if (prevInput.type !== 'checkbox') prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+            if (prevInput.type !== 'checkbox' && prevInput.tagName !== 'SELECT') {
+                prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+            }
         } else if (event.key === 'ArrowDown' && !isLast && next) {
-            const nextInput = next[input.name].input;
+            const nextInput = next[inputName].input;
             nextInput.focus();
-            if (nextInput.type !== 'checkbox') nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+            if (nextInput.type !== 'checkbox' && nextInput.tagName !== 'SELECT') {
+                nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+            }
         } else if (event.key === 'd' && event.altKey && event.ctrlKey) {
             const {key: {content: key}, value: {content: value}} = input.pairLink || this._model[input.dataset.index];
             const newIndex = +input.dataset.index + this._duplicateIndexStep;
@@ -210,8 +257,8 @@ class KVInput extends HTMLElement {
             this._model[newIndex].key.input.focus();
         } else if (event.key === 'y' && event.ctrlKey) {
             this.removePair(input.dataset.index);
-            if (isFirst && next) next[input.name].input.focus();
-            else if (prev) prev[input.name].input.focus();
+            if (isFirst && next) next[inputName].input.focus();
+            else if (prev) prev[inputName].input.focus();
         } else {
             this.debounceUpdate(event);
         }
@@ -221,7 +268,7 @@ class KVInput extends HTMLElement {
 
     validateKeys() {
         const uniqueKeys = {};
-        Array.from(this._model).slice(0, -1).forEach(({key}) => {
+        this.getModelArray().forEach(({key}) => {
             if (uniqueKeys[key.content]) {
                 uniqueKeys[key.content].classList.add('invalid');
                 key.input.classList.add('invalid');
@@ -239,8 +286,8 @@ class KVInput extends HTMLElement {
     }
 
     setElementTail(element, name, pairLink, index) {
-        element.setAttribute('name', name);
         element.pairLink = pairLink;
+        element.dataset.name = name;
         element.dataset.index = index;
         element.classList.add(name, 'input');
     }
@@ -253,7 +300,10 @@ class KVInput extends HTMLElement {
         const keyArray = Array.isArray(keyContent);
         const valueArray = Array.isArray(value);
 
-        if (allowed && typeof value === 'boolean') {
+        if (name === 'key' && this._keys && Array.isArray(this._keys)) {
+            element = this.createSelect(this._keys, false);
+            element.value = this._keys.includes(value) ? value : '';
+        } else if (allowed && typeof value === 'boolean') {
             element = this.createCheckbox(value);
         } else if (allowed && (valueArray || keyArray)) {
             if (!keyContent) this._meta[pairLink.key.content] = value;
@@ -264,6 +314,7 @@ class KVInput extends HTMLElement {
         }
 
         this.setElementTail(element, name, pairLink, index);
+        element.title = value;
 
         return element;
     }
@@ -275,7 +326,7 @@ class KVInput extends HTMLElement {
         return input;
     }
 
-    createSelect(value) {
+    createSelect(value, canSwitch = true) {
         const select = document.createElement('select');
 
         [empty, ...value].forEach(item => {
@@ -285,18 +336,22 @@ class KVInput extends HTMLElement {
         });
         select.value = null;
 
-        const unwrapSelect = (event) => {
-            if (!event.ctrlKey) return;
+        if (canSwitch) {
+            const unwrapSelect = (event) => {
+                if (!event.ctrlKey) return;
 
-            const input = this.createInput(select.value);
-            this.setElementTail(input, 'value', select.pairLink, select.dataset.index);
+                const input = this.createInput(select.value);
+                this.setElementTail(input, 'value', select.pairLink, select.dataset.index);
 
-            select.pairLink.value.input = input;
-            select.parentNode.insertBefore(input, select);
-            select.removeEventListener('click', unwrapSelect);
-            select.remove();
-        };
-        select.addEventListener('click', unwrapSelect);
+                select.pairLink.value.input = input;
+                select.parentNode.insertBefore(input, select);
+                select.removeEventListener('click', unwrapSelect);
+                delete select.unwrap;
+                select.remove();
+            };
+            select.addEventListener('click', unwrapSelect);
+            select.unwrap = unwrapSelect;
+        }
 
         return select;
     }
@@ -340,15 +395,25 @@ class KVInput extends HTMLElement {
     }
 
     update(event) {
+        if (event) this.updateUI(event);
+
+        // fire onchange
+        if (this.onchange && this.onchange instanceof Function) this.onchange(this.kv);
+
+        this.validateKeys();
+    }
+
+    updateUI(event) {
         const input = event.path[0];
         const pairIndex = input.dataset.index;
         const pairLink = input.pairLink || this._model[pairIndex];
-        const inputLink = pairLink[input.name];
+        const inputLink = pairLink[input.dataset.name];
 
         const inputValue = input.type === 'checkbox' ? input.checked : input.value;
         if (inputLink.content === inputValue) return;
 
         inputLink.content = inputValue;
+        inputLink.input.title = inputValue;
 
         // set null for empty option in dropdown
         if (this._useTypes && input.tagName === 'SELECT' && !input.selectedIndex) {
@@ -357,25 +422,31 @@ class KVInput extends HTMLElement {
 
         // update field to select if key equal to known meta
         const keyContent = this._meta[pairLink.key.content];
-        if (this._useTypes && keyContent && Array.isArray(keyContent) && pairLink.value.input.tagName !== 'SELECT') {
+        if (this._useTypes && keyContent && Array.isArray(keyContent)) {
             const valueInput = pairLink.value.input;
             const select = this.createSelect(keyContent);
             select.value = pairLink.value.content;
-            this.setElementTail(select, valueInput.name, pairLink, pairIndex);
+            this.setElementTail(select, valueInput.dataset.name, pairLink, pairIndex);
             valueInput.parentNode.insertBefore(select, valueInput);
             pairLink.value.input = select;
             valueInput.remove();
+        } else if (this._useTypes && !keyContent && pairLink.value.input.tagName === 'SELECT') {
+            pairLink.value.input.unwrap({ctrlKey: true});
         }
 
-        if (!pairLink.key.content && (!pairLink.value.content || pairLink.value.content == empty)) {
+        // add or remove pair
+        let needToAdd = false;
+        if ((!pairLink.key.content || pairLink.key.content == empty) && (!pairLink.value.content || pairLink.value.content == empty)) {
+            needToAdd = this._keys && Object.keys(this._model).length === this._keys.length && !this._model[this._lastIndex].isLast;
             this.removePair(pairIndex);
         } else if (pairLink.isLast) {
             pairLink.isLast = false;
-            this._lastIndex = this.createPair('', '', 'last');
+            needToAdd = !this._keys || Object.keys(this._model).length < this._keys.length;
         }
 
-        if (this.onchange && this.onchange instanceof Function) this.onchange(this.kv);
-        this.validateKeys();
+        if (needToAdd) {
+            this._lastIndex = this.createPair('', '', 'last');
+        }
     }
 
     clearModel() {
@@ -407,10 +478,10 @@ class KVInput extends HTMLElement {
             valueTitle: this.shadowRoot.getElementById('value-title')
         };
 
-        this.updateUI();
+        this.updateTitles();
     }
 
-    updateUI() {
+    updateTitles() {
         const title = this.title || this.getAttribute('title') || '';
         const keyTitle = this.keyTitle || this['key-title'] || this.getAttribute('key-title') || '';
         const valueTitle = this.valueTitle || this['value-title'] || this.getAttribute('value-title') || '';
@@ -457,6 +528,9 @@ class KVInput extends HTMLElement {
             case 'meta':
                 this.meta = JSON.parse(newVal);
                 break;
+            case 'keys':
+                this.keys = newVal;
+                break;
             case 'debounce':
                 this._debounce = isNaN(parseInt(newVal)) ? 0 : parseInt(newVal);
                 break;
@@ -465,10 +539,13 @@ class KVInput extends HTMLElement {
                 this.reset();
                 break;
             default:
-                this.updateUI();
+                this.updateTitles();
         }
     }
 
+    static get observedAttributes() {
+        return ['title', 'key-title', 'value-title', 'debounce', 'use-types', 'meta', 'keys'];
+    }
 }
 
 window.customElements.define('kv-input', KVInput);

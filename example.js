@@ -1,5 +1,8 @@
 import './kv-input.js';
 
+const simpleData = {"NotEmpty":"some text","Null":null,"Array":["foo","bar",true,42],"BoolTrue":true,"BoolFalse":false,"Number":42};
+const keysData = {Array: 'foo', NotEmpty: 'some text'};
+
 // get KVInput instance
 const kvInput = document.querySelector('kv-input');
 window.kvInput = kvInput; // for debug and investigate
@@ -25,6 +28,20 @@ window.updateDebounce(elements.debounce);
 window.toggleTypes = function() {
     kvInput.setAttribute('use-types', String(!kvInput._useTypes));
     elements.useTypesValue.innerText = String(kvInput._useTypes);
+};
+
+window.clearKV = function() {
+    kvInput.kv = null;
+};
+
+window.toggleKeys = function () {
+    if (kvInput.keys) {
+        kvInput.keys = null;
+        kvInput.kv = simpleData;
+    } else {
+        kvInput.kv = keysData;
+        kvInput.keys = ['test', 'Array', 'NotEmpty'];
+    }
 };
 
 // add listeners for titles change and init them

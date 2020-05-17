@@ -44,8 +44,11 @@ That's it :)
 * **debounce** - time in milliseconds before the component will handle a change, 300ms by default
 * **use-types** - use checkboxes instead of the boolean values and restore types into returned object (otherwise values will be returned as strings), true by default.
 * **meta** - json to define a dropdown content
+* **keys** - list of keys allowed to select, json or comma-separated string
 
-Also, it is possible to pass initial data inside of the component tag:
+## Passing data inside tag
+
+It is possible to pass initial data inside of the component tag:
 
 ```html
 <kv-input>{"Put here": "JSON", "It will be parsed": "via JSON.parse"}</kv-input>
@@ -64,6 +67,7 @@ The second way is to use names slots:
 There are four possible slots right now:
 * **json** - json to set key-values
 * **meta** - json to set meta-data
+* **keys** - json to set allowed key names
 * **style** or tag `<style>` -  allows you to pass custom styles into the component, see [Styling](#styling) section.
 
 Note, that all `<style>` tags from inside of the component will be removed.
@@ -71,6 +75,8 @@ Note, that all `<style>` tags from inside of the component will be removed.
 Note, that it is possible to process only one value per slot name, so you are not able to set several styles, or several meta-data. 
 
 ## Interaction
+
+### kv getter/setter
 
 The `kv` property allows to set the data into component, or to read the modified object.
 
@@ -81,6 +87,8 @@ kvInput.kv = plainObject;
 // read data
 plainObject = kvInput.kv;
 ```
+
+### meta getter/setter
 
 Also, it is possible to set some meta-information to make dropdown for defined keys like this:
 
@@ -102,10 +110,23 @@ or as named slot:
 </kv-input>
 ```
 
-There is one allowed behaviour: for pair where value drawn as dropdown, user are able to change the key name,
-and the dropdown will be saved to keep ability to change the value.
-But when re-render will be triggered (for example on `use-types` change, setting new `meta` or new `kv`) -
-the dropdown will be rendered as plain input, because there are no according meta for new key name. 
+### keys getter/setter
+
+Same for `keys` property. You can get or set list of keys that will be rendered as dropdown to restrict input key names.
+
+direct property usage:
+
+```js
+kvInput.keys = ['some', 'selectable', 'keys'];
+```
+
+attribute:
+
+```html
+<kv-input keys="some, selectable, values"></kv-input>
+```
+
+or same slot usage as above.
 
 ### HotKeys
 
