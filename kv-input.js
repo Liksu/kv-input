@@ -239,13 +239,13 @@ class KVInput extends HTMLElement {
         if (event.key === 'ArrowUp' && !isFirst && prev) {
             const prevInput = prev[inputName].input;
             prevInput.focus();
-            if (prevInput.type !== 'checkbox' && prevInput.tagName !== 'SELECT') {
+            if (prevInput.type !== 'checkbox' && !this.isSelect(prevInput)) {
                 prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
             }
         } else if (event.key === 'ArrowDown' && !isLast && next) {
             const nextInput = next[inputName].input;
             nextInput.focus();
-            if (nextInput.type !== 'checkbox' && nextInput.tagName !== 'SELECT') {
+            if (nextInput.type !== 'checkbox' && !this.isSelect(nextInput)) {
                 nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
             }
         } else if (event.key === 'd' && event.altKey && event.ctrlKey) {
@@ -416,7 +416,7 @@ class KVInput extends HTMLElement {
         inputLink.input.title = inputValue;
 
         // set null for empty option in dropdown
-        if (this._useTypes && input.tagName === 'SELECT' && !input.selectedIndex) {
+        if (this._useTypes && this.isSelect(input) && !input.selectedIndex) {
             inputLink.content = empty;
         }
 
@@ -430,7 +430,7 @@ class KVInput extends HTMLElement {
             valueInput.parentNode.insertBefore(select, valueInput);
             pairLink.value.input = select;
             valueInput.remove();
-        } else if (this._useTypes && !keyContent && pairLink.value.input.tagName === 'SELECT') {
+        } else if (this._useTypes && !keyContent && this.isSelect(pairLink.value.input)) {
             pairLink.value.input.unwrap({ctrlKey: true});
         }
 
@@ -521,6 +521,10 @@ class KVInput extends HTMLElement {
         const currentModel = this.kv;
         this.initRender();
         this.kv = currentModel;
+    }
+
+    isSelect(element) {
+        return element.tagName === 'SELECT';
     }
 
     attributeChangedCallback(attrName, oldVal, newVal) {
