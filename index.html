@@ -119,7 +119,12 @@
     <h2>Demo usage:</h2>
 
     <div class="column">
-        <kv-input>{"NotEmpty":"some text","Null":null,"Array":["foo","bar",true,42],"BoolTrue":true,"BoolFalse":false,"Number":42}</kv-input>
+        <kv-input>
+            <style slot="style">
+                .title {color: navy}
+            </style>
+            <p slot="json">{"NotEmpty":"some text","Null":null,"Array":["foo","bar",true,42],"BoolTrue":true,"BoolFalse":false,"Number":42}</p>
+        </kv-input>
     </div>
 
     <hr>

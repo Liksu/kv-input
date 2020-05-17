@@ -51,6 +51,25 @@ Also, it is possible to pass initial data inside of the component tag:
 <kv-input>{"Put here": "JSON", "It will be parsed": "via JSON.parse"}</kv-input>
 ```
 
+The second way is to use names slots:
+
+```html
+<kv-input>
+    <style>.title {color: navy}</style>
+    <p slot="json">{"init":"value"}</p>
+    <p slot="meta">{"init":["key","value"]}</p>
+</kv-input>
+```
+
+There are four possible slots right now:
+* **json** - json to set key-values
+* **meta** - json to set meta-data
+* **style** or tag `<style>` -  allows you to pass custom styles into the component, see [Styling](#styling) section.
+
+Note, that all `<style>` tags from inside of the component will be removed.
+
+Note, that it is possible to process only one value per slot name, so you are not able to set several styles, or several meta-data. 
+
 ## Interaction
 
 The `kv` property allows to set the data into component, or to read the modified object.
@@ -75,6 +94,14 @@ or like this:
 <kv-input meta='{"JSON":["will","be","parsed"]}'></kv-input>
 ```
 
+or as named slot:
+
+```html
+<kv-input>
+    <p slot="meta">{"JSON":["will","be","parsed"]}</p>
+</kv-input>
+```
+
 There is one allowed behaviour: for pair where value drawn as dropdown, user are able to change the key name,
 and the dropdown will be saved to keep ability to change the value.
 But when re-render will be triggered (for example on `use-types` change, setting new `meta` or new `kv`) -
@@ -87,6 +114,40 @@ the dropdown will be rendered as plain input, because there are no according met
 `Ctrl+Click` on checkbox or dropdown transform them into text-input.
 
 `Ctrl+Alt+D` duplicates the pair.
+
+## Styling
+
+You can pass styles inside to the component.
+Here is the sample structure of component:
+
+```
++-------------------------------------------------------------------------+
+| h3.title.main-title                                                     |
++-----------------------------------+-------------------------------------+
+| span.title.column-title.key-title | span.title.column-title.value-title |
++-----------------------------------+-------------------------------------+
+| input.key.input                   | input.value.input                   |
++-----------------------------------+-------------------------------------+
+| input.key.input.invalid           | input[type=checkbox].value.input    |
++-----------------------------------+-------------------------------------+
+| input.key.input                   | select.value.input                  |
++-----------------------------------+-------------------------------------+
+```
+
+And you can use this classes to customize the view:
+
+| Selector | Description |
+| --- | --- |
+| `.title` | All three titles |
+| `.main-title` or `h3` | Main title, passed bt `title` attribute |
+| `.column-title` | Two column header titles |
+| `.key-title` | Title for key-column |
+| `.value-title` | Title for value-column |
+| `.input` | All inputs |
+| `.key` | Inputs in key-column |
+| `.value` | Inputs in value-column |
+| `.invalid` | Duplicated keys |
+
 
 ## Browsers compatibility
 

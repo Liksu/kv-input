@@ -3,15 +3,13 @@ const template = `
         :host {
             display: grid;
             grid-template-columns: auto auto;
+            font-family: sans-serif;
         }
         
         input {
             font-size: inherit;
             display: inline-block;
             border: 1px solid silver;
-        }
-        
-        input {
             margin-left: -1px;
             margin-top: -1px;
             padding: 4px;
@@ -38,9 +36,9 @@ const template = `
         }
     </style>
     
-    <h3 id="title"></h3>
-    <span id="key-title"></span>
-    <span id="value-title"></span>
+    <h3 id="title" class="title main-title"></h3>
+    <span id="key-title" class="title column-title key-title"></span>
+    <span id="value-title" class="title column-title value-title"></span>
 `;
 const empty = {
     valueOf: () => Symbol.for(null),
@@ -62,6 +60,7 @@ class KVInput extends HTMLElement {
     _useTypes = true;
     _duplicateIndexStep = 0.00001;
     _meta = {};
+    _template = template;
 
     static get observedAttributes() {
         return ['title', 'key-title', 'value-title', 'debounce', 'use-types', 'meta'];
@@ -75,12 +74,45 @@ class KVInput extends HTMLElement {
         this.shadowRoot.addEventListener('change', e => this.update(e));
         this.shadowRoot.addEventListener('keyup', e => this.keyupHandler(e));
 
-        let content;
-        if (this.innerHTML) {
-            try { content = JSON.parse(this.innerHTML) } catch (e) {}
+        const json = this.processInnerHTML();
+
+        this.kv = json || {};
+    }
+
+    processInnerHTML() {
+        if (!this.innerHTML) return;
+
+        let json;
+
+        try {
+            // try to find json just inside of the tag
+            json = JSON.parse(this.innerHTML);
+        } catch (e) {
+            // maybe there is some DOM inside of the tag
+
+            const slots = Object.fromEntries(Array.from(
+                this.querySelectorAll('[slot], style'),
+                slot => [
+                    slot.tagName === 'STYLE' ? 'style' : slot.getAttribute('slot'),
+                    slot.innerHTML.trim()
+                ]
+            ));
+            this.querySelectorAll('style').forEach(slot => slot.remove());
+
+            if (slots.style) {
+                this._template += `<style>${slots.style}</style>`;
+            }
+
+            if (slots.json) {
+                try { json = JSON.parse(slots.json) } catch (e) {}
+            }
+
+            if (slots.meta) {
+                try { this._meta = JSON.parse(slots.meta) } catch (e) {}
+            }
         }
 
-        this.kv = content || {};
+        return json;
     }
 
     restoreValueType(value) {
@@ -208,6 +240,7 @@ class KVInput extends HTMLElement {
         element.setAttribute('name', name);
         element.pairLink = pairLink;
         element.dataset.index = index;
+        element.classList.add(name, 'input');
     }
 
     createElement(index, name, value, pairLink) {
@@ -364,7 +397,7 @@ class KVInput extends HTMLElement {
     }
 
     initRender() {
-        this.shadowRoot.innerHTML = template;
+        this.shadowRoot.innerHTML = this._template;
 
         this._uiCache = {
             title: this.shadowRoot.getElementById('title'),
