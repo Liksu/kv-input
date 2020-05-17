@@ -1,6 +1,6 @@
 {
   "name": "kv-input",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Simple key-value editor web-component",
   "main": "kv-input.js",
   "scripts": {

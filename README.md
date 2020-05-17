@@ -139,10 +139,10 @@ And you can use this classes to customize the view:
 | Selector | Description |
 | --- | --- |
 | `.title` | All three titles |
-| `.main-title` or `h3` | Main title, passed bt `title` attribute |
-| `.column-title` | Two column header titles |
-| `.key-title` | Title for key-column |
-| `.value-title` | Title for value-column |
+| `.main-title` or `h3` | Main title, passed by `title` attribute |
+| `.column-title` or `span` | Two column header titles |
+| `.key-title` | Title for key-column, passed by `key-title` attribute |
+| `.value-title` | Title for value-column, passed by `value-title` attribute |
 | `.input` | All inputs |
 | `.key` | Inputs in key-column |
 | `.value` | Inputs in value-column |
