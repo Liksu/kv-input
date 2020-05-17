@@ -155,7 +155,9 @@ class KVInput extends HTMLElement {
     }
 
     set meta(metaData) {
-        Object.assign(this._meta, metaData);
+        if (!metaData) this._meta = {};
+        else if (typeof metaData === 'object') Object.assign(this._meta, metaData);
+
         this.reset();
     }
 

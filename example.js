@@ -48,8 +48,18 @@ kvInput.meta = {
 // subscribe to changes from kv-input
 
 function updateDump(newData) {
-    elements.mirror.innerHTML = stringify(newData, 4);
     console.log('data changed to', newData);
+    elements.mirror.innerHTML = stringify(newData, null, 4);
+
+    const meta = kvInput.meta;
+    if (Object.keys(meta).length) {
+        const metaString = stringify(meta, null, 0);
+        elements.metaValue.innerHTML = metaString.replace(/^.*?{\n?/, '').replace(/\n?}.*?$/sm, '');
+        elements.metaValue.style.display = 'inline-block';
+        elements.metaBlock.style.display = 'inline';
+    } else {
+        elements.metaBlock.style.display = 'none';
+    }
 }
 kvInput.onchange = updateDump;
 updateDump(kvInput.kv);
@@ -65,5 +75,5 @@ function stringify(obj, replacer = null, space = 4) {
         return `${space}"${k}": ` + replacer(k, v);
     });
 
-    return `{\n${pairs.join('\n')}\n}`;
+    return `{\n${pairs.join(',\n')}\n}`;
 }
