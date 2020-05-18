@@ -153,7 +153,7 @@ Here is the sample structure of component:
 +-----------------------------------+-------------------------------------+
 | input.key.input.invalid           | input[type=checkbox].value.input    |
 +-----------------------------------+-------------------------------------+
-| input.key.input                   | select.value.input                  |
+| select.key.input                  | select.value.input                  |
 +-----------------------------------+-------------------------------------+
 ```
 
